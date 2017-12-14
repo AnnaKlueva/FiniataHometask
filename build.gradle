@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "io.qameta.allure:allure-gradle:2.3"
+    }
+}
+
+apply plugin: 'io.qameta.allure'
+
+allure {
+    autoconfigure = true
+    aspectjweaver = true
+    configuration = 'compile'
+    version = '2.1.1'
+}
+
+group 'anna.klueva'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+compileTestJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.53.0'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+    compile 'org.codehaus.groovy:groovy-all:2.4.7'
+    compile 'io.rest-assured:rest-assured:3.0.2'
+    compile group: 'org.json', name: 'json', version: '20171018'
+}
+
+task runAllTests(type: Test, dependsOn: 'generatePropertyFile'){
+    group = 'Test'
+    description  = 'Runs TestNG all tests'
+    useTestNG(){}
+}
+
+task runLoginTests(type: Test, dependsOn: 'generatePropertyFile'){
+    group = 'Test'
+    description  = 'Runs TestNG tests in the \'login\' group'
+    useTestNG(){
+        includeGroups 'login'
+    }
+}
+
+task runSoapTests(type: Test){
+    group = 'Test'
+    description  = 'Runs TestNG tests in the \'soapApi\' group'
+    useTestNG(){
+        includeGroups 'soapApi'
+    }
+}
+
+task runRestTests(type: Test){
+    group = 'Test'
+    description  = 'Runs TestNG tests in the \'restApi\' group'
+    useTestNG(){
+        includeGroups 'restApi'
+    }
+}
+
+task generatePropertyFile(type: JavaExec) {
+    description = 'Creates config.properties file with selected profile'
+    main = 'anna.kliuieva.petproject.PropertyFileGenerator'
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperty "test.config", project.findProperty("test.config") ?: "default-config"
+}
+
+tasks.withType(Test)*.finalizedBy 'allureReport'
+

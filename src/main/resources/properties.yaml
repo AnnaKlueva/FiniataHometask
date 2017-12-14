@@ -1,0 +1,30 @@
+properties:
+  #Thread count
+  default-threads: &default_thread_count
+    thread.count: 1
+
+  #Browser
+  default-browser: &default_browser
+    browserName: chrome
+
+  firefox-broser: &firefox_browser
+    browserName: firefox
+
+  #Path to browser
+  path-for-chrome-driver: &path_to_chrome_driver
+    webdriver.chrome.driver: chromedriver
+
+  #Global variables for Maven
+  default-config: &default_config
+    <<: *default_browser
+    <<: *default_thread_count
+    <<: *path_to_chrome_driver
+
+  chrome-config:
+    <<: *default_browser
+    <<: *default_thread_count
+    <<: *path_to_chrome_driver
+
+  firefox-config:
+    <<: *firefox_browser
+    <<: *default_thread_count

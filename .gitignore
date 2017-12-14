@@ -1,0 +1,8 @@
+.allure/
+.gradle/
+.idea/
+allure-results/
+build/
+out/
+*.iml
+/src/main/resources/config.properties
