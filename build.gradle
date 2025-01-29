@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "io.qameta.allure:allure-gradle:2.3"
+        classpath "io.qameta.allure:allure-gradle:2.8"
     }
 }
 
@@ -12,8 +12,8 @@ apply plugin: 'io.qameta.allure'
 allure {
     autoconfigure = true
     aspectjweaver = true
-    configuration = 'compile'
-    version = '2.1.1'
+    configuration = 'implementation' // Updated from 'compile'
+    version = '2.13.9' // Latest Java 8-compatible version
 }
 
 group 'anna.klueva'
@@ -22,7 +22,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'groovy'
 apply plugin: 'java'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
 compileTestJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -30,49 +30,51 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.53.0'
-    compile group: 'org.yaml', name: 'snakeyaml', version: '1.18'
-    compile 'org.codehaus.groovy:groovy-all:2.4.7'
-    compile 'io.rest-assured:rest-assured:3.0.2'
-    compile group: 'org.json', name: 'json', version: '20171018'
+    implementation 'org.seleniumhq.selenium:selenium-java:3.141.59' // Latest Java 8-compatible version
+    implementation 'org.yaml:snakeyaml:1.30' // Last Java 8-compatible version
+    implementation 'org.codehaus.groovy:groovy-all:2.5.14' // Latest Java 8-compatible version
+    implementation 'io.rest-assured:rest-assured:4.3.3' // Latest Java 8-compatible version
+    implementation 'org.json:json:20210307' // Last Java 8-compatible version
+    testImplementation 'org.testng:testng:6.14.3' // Java 8-compatible TestNG version
 }
 
-task runAllTests(type: Test, dependsOn: 'generatePropertyFile'){
+tasks.withType(Test).configureEach {
+    finalizedBy 'allureReport'
+}
+
+task runAllTests(type: Test, dependsOn: 'generatePropertyFile') {
     group = 'Test'
     description  = 'Runs TestNG all tests'
-    useTestNG(){}
+    useTestNG()
 }
 
-task runLoginTests(type: Test, dependsOn: 'generatePropertyFile'){
+task runLoginTests(type: Test, dependsOn: 'generatePropertyFile') {
     group = 'Test'
     description  = 'Runs TestNG tests in the \'login\' group'
-    useTestNG(){
+    useTestNG() {
         includeGroups 'login'
     }
 }
 
-task runSoapTests(type: Test){
+task runSoapTests(type: Test) {
     group = 'Test'
     description  = 'Runs TestNG tests in the \'soapApi\' group'
-    useTestNG(){
+    useTestNG() {
         includeGroups 'soapApi'
     }
 }
 
-task runRestTests(type: Test){
+task runRestTests(type: Test) {
     group = 'Test'
     description  = 'Runs TestNG tests in the \'restApi\' group'
-    useTestNG(){
+    useTestNG() {
         includeGroups 'restApi'
     }
 }
 
 task generatePropertyFile(type: JavaExec) {
     description = 'Creates config.properties file with selected profile'
-    main = 'anna.kliuieva.petproject.PropertyFileGenerator'
+    mainClass = 'anna.kliuieva.petproject.PropertyFileGenerator'
     classpath = sourceSets.main.runtimeClasspath
     systemProperty "test.config", project.findProperty("test.config") ?: "default-config"
 }
-
-tasks.withType(Test)*.finalizedBy 'allureReport'
-
